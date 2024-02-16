@@ -1,0 +1,7 @@
+pyrightconfig.json
+.vscode
+*__pycache__*
+test/.pytest_cache
+*jpg
+*zip
+*ipynb
