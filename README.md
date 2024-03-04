@@ -47,19 +47,57 @@ pip install -r requirements/core.${platform}.txt -e .[train,test]
 Note that I use cu117 above, you should enter `make torch-cu117` if you followed the instruction closely.
 
 # Usage
+## 1. Read SID and exam result from scanned images
 
 ```python
 from answer_checker.find_studentid import get_sid
+from answer_checker.exam_result import *
 
-img = cv2.imread("answer_sheet.jpg")
-img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
-template = cv2.imread("template.png", cv2.IMREAD_GRAYSCALE)
-reader_names = ['parseq', 'parseq_tiny', 'trba', 'vitstr']
-readers = [StrhubReader(name) for name in reader_names]
+folder = Path("folder/path")
 
-#! Now you are doing the preprocessing 4 times, what a waste!
-res = {}       
-for name, reader in zip(reader_names, readers):
-    sid, patch = get_sid(img, reader, template) 
-    res[name] = sid
+for file in folder.rglob('*jpg'): 
+    fname = os.path.join(folderm, file.name)
+    img = cv2.imread(fname)
+    img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
+    template = cv2.imread("template.png", cv2.IMREAD_GRAYSCALE)
+    reader_names = ['parseq', 'parseq_tiny', 'trba', 'vitstr']
+    readers = [StrhubReader(name) for name in reader_names]
+
+    #! Now you are doing the preprocessing 4 times, what a waste!
+    #! Get SID from scanned image
+    res = {}       
+    for name, reader in zip(reader_names, readers):
+        sid, patch = get_sid(img, reader, template) 
+        res[name] = sid
+    
+    #! Get answer from scanned image
+    all_result = {}
+    fail = []
+    try: 
+        results = get_result(img)
+    except Exception as e:
+        fail.append(sid)
+        continue            
+    
+    #! Only concat the results with the expected number of answers
+    if results: 
+        all_result[sid] = results
+    else: 
+        fail.append(sid)
+
+```
+
+## 2. Export exam results of all scanned images as df/csv
+
+```python
+
+
+# Format model answer
+model_answer_file = r"MCQ answer.txt"
+model_answer_alph = get_model_answer(model_answer_file)
+model_answer = format_model_answer(model_answer_alph)
+
+# Export ouput to csv
+df = create_output(model_answer, all_result)
+df.to_csv('MCQ_result.csv')
 ```
