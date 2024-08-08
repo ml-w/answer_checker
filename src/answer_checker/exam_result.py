@@ -20,6 +20,8 @@ def preprocess_image(image: np.ndarray, iter: int) -> np.ndarray:
 
     # Rotate image
     h, w = image.shape[:2]
+    
+    # TODO: This might not be needed
     image = cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE) if h < w else image
         
     # Preprocess image color

@@ -4,7 +4,7 @@ import numpy as np
 import PIL
 from scipy import stats
 from pathlib import Path
-from typing import Any, List, Tuple, Optional, Union
+from typing import Any, List, Tuple, Optional, Union, Dict
 from .strhub_reader import StrhubReader
 
 
@@ -205,10 +205,10 @@ def get_sid(img: cv2.UMat,
         Assumes input is already up-right. 
     
     """
-    # * glob a rough area to work with
+    # * glob a rough area to work with (This is hard coded)
     img = img[600:800, 400:1200]
 
-    # * Find student ID location
+    # * Find student ID location by using square bracket
     locs = np.stack(template_match(img, template))
     x = locs.min(axis=0)[0]
     y = locs.min(axis=0)[1]

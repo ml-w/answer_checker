@@ -5,3 +5,4 @@ test/.pytest_cache
 *jpg
 *zip
 *ipynb
+*.tiff
